@@ -15,7 +15,7 @@
 
 var Blink = require('node-blink-security');
 var AsyncLock = require('node-async-locks').AsyncLock;
-var Accessory, Service, Characteristic, UUIDGen;
+var Accessory, Service, Characteristic, UUIDGen, hap;
 
 module.exports = function(homebridge) {
     console.log("homebridge API version: " + homebridge.version);
@@ -24,6 +24,7 @@ module.exports = function(homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
     UUIDGen = homebridge.hap.uuid;
+    hap = homebridge.hap;
     
     homebridge.registerPlatform("homebridge-platform-blink-security", "BlinkSecurityPlatform", BlinkSecurityPlatform, true);
 }
@@ -100,7 +101,7 @@ BlinkSecurityPlatform.prototype.addAccessory = function(cameraID) {
                 if (this.discoveredCameras.hasOwnProperty(name)) {
                     let camera = this.discoveredCameras[name];
                     if (cameraID === camera.id) {
-                        newAccessory = new Accessory(camera.name, uuid, 8);
+                        newAccessory = new Accessory(camera.name, uuid, hap.Accessory.Categories.CAMERA);
                         this.log('Created new accessory ' + newAccessory.UUID);
                         newAccessory.context.cameraID = camera.id;
                         this.updateAccessory(newAccessory);
@@ -164,7 +165,7 @@ BlinkSecurityPlatform.prototype.updateAccessory = function(accessory) {
                             .on('get', this.getOn.bind(accessory))
                             .on('set', this.setOn.bind(accessory));
                     }
-                    this.log("Initialized Camera Switch: " + camera.id + ' ' + camera.name);
+                    this.log("Initialized Camera: " + camera.id + ' ' + camera.name);
                     
                     accessory.context.initialized = true;
                 }
